@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
+
+*{
+    font-family: 'Montserrat', sans-serif;
+    transition: color 0.1s ease-in-out, background-color 0.2s ease-in-out, filter 0.2s ease-in-out;
+}
+
+.anim{
+  transition: all 0.2s ease-in-out;
+}
+
+.xFlat{
+  transform: rotateX(90deg);
+}
+
+.button {
+  border: none;
+  font-size: 28px;
+  color: #082655;
+  padding: 20px;
+  min-width: 400px;
+  min-height: 100px; 
+  height: 150px;
+  text-align: center;
+  transition-duration: 0.4s;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 25px;
+  background-color: #FFFFFF;
+  border-radius: 100px;
+}
+.success { 
+  background-color: #366a10;
+}
+.container {
+  background-image: url('./images/bg.png');
+  background-color: #082655;
+  display: flex;           /* establish flex container */
+  flex-direction: column;  /* make main axis vertical */
+  justify-content: center; /* center items vertically, in this case */
+  align-items: center;     /* center items horizontally, in this case */
+  height: 100vh;
+  margin: -8px;
+  padding: 10;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.row {
+  text-align: center;
+  border: none;
+  margin: 15px 10px 15px;
+  
+}
+
+.column {
+  border: none;
+
+  width: auto; 
+}
+
+.yellowButtonEffect:hover{
+  filter: brightness(300%)
+}
+
+.transition-all{
+  -webkit-transition: all .3s ease-in-out;
+  -moz-transition:    all .3s ease-in-out;
+  -o-transition:      all .3s ease-in-out;
+  -ms-transition:     all .3s ease-in-out;
+  transition:         all .3s ease-in-out;
+}
+
+.transition-all-fast{
+  -webkit-transition: all .15s ease-in-out;
+  -moz-transition:    all .15s ease-in-out;
+  -o-transition:      all .15s ease-in-out;
+  -ms-transition:     all .15s ease-in-out;
+  transition:         all .15s ease-in-out;
+}
+
+tr:nth-child(even){
+  background-color: #ebebeb;
+}
+
+tbody tr:hover{
+  opacity: 0.6
+}
+
+.sectionStyle{
+  height: 100vh;
+  background-image: url(./images/bg.png);
+  background-size: 'cover';
+}
