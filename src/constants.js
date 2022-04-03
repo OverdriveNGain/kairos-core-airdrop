@@ -1,4 +1,7 @@
 const c = {
+    // REDIRECT_URI: "https%3A%2F%2Fkairos-core-airdrop.web.app%2F", // https://kairos-core-airdrop.web.app/
+    // REDIRECT_URI: "http%3A%2F%2F192.168.1.101%3A8080%2F", // http://192.168.1.101:8080/
+
     POLICY_ID: "9d53f82c2ee0a83bd724d90dd74109766035204b0d30a82b96c4c99e",
     POLICY_SCRIPT: '8201818200581cd086c23b5df51f80ed86f8199897bd4f8b7e9070783d65d3a6848125',
     API_ENDPOINT: 'https://discord.com/api/v8',
@@ -14,6 +17,9 @@ const c = {
         BRONZE:0.50,
         BLACK:0.00,
         WHITE:0.30
+    },
+    BLOCKFROST_API_KEY: {
+        1: "mainnetDO5gk923wPREF5AwbKT1v9fArfqgCEt6" // mainnet
     },
     FORCE_DISCORD_ID: ''
     // id,tag,address,stake_address,status,verify_ada,register_time,blue,ruby,gold,silver,bronze,black,white,total,airdrop,airdrop_taken

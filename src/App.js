@@ -14,7 +14,6 @@ import axios from 'axios';
 import c from './constants';
 
 import NamiWalletApi, { Cardano } from './nami-js';
-import blockfrostApiKey from '../config.js';
 
 let nami;
 
@@ -277,11 +276,16 @@ export default function App() {
             nami = new NamiWalletApi(
                 S,
                 window.cardano,
-                blockfrostApiKey
+                c.BLOCKFROST_API_KEY
             )
-
             if (await nami.isInstalled()) {
-                nami.isEnabled().then(result => { setNamiConnected(result) }).catch((e) => {
+                nami.isEnabled().then(result => {
+                     setNamiConnected(result);
+                     console.log("Nami Connected!");
+                     nami.getAddress().then((addr) => {
+                        console.log(`Address: ${addr}`);
+                     })
+                }).catch((e) => {
                     console.log("(useEffect, isEnabled) setting error:")
                     console.log(e)
                     setError(e);
@@ -407,7 +411,7 @@ export default function App() {
                 </div>
                 <div className="h-full flex flex-col justify-center max-w-screen-lg mx-auto px-5">
                     <p className="text-3xl font-bold text-white text-center mb-4">Airdrop NFT</p>
-                    <p className="text-white mb-3 text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.</p>
+                    <p className="text-white mb-3 text-center">Debug Version 2</p>
                     <div className="bg-white/10 p-6 h-1/2 rounded-lg text-white">
                         <div className="h-full w-full flex flex-col">
                             {mainContents()}
