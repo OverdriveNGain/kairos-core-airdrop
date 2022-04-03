@@ -129,9 +129,9 @@ export default function App() {
                     return <button disabled className="animated-all bg-white disabled:opacity-50 p-4 shadow-md rounded-md w-60 m-4 mx-auto">No Eligible Cores!<br />Try Again Next Week!</button>
                 if (databaseResponse1.airdrop === databaseResponse1.airdrop_taken)
                     return <button disabled className="animated-all bg-white disabled:opacity-25 p-4 shadow-md rounded-md w-60 m-4 mx-auto">Already Claimed!</button>
-                if (!namiConnected)
-                    return <button disabled className="animated-all bg-white disabled:opacity-50 p-4 shadow-md rounded-md w-60 m-4 mx-auto">Loading Nami...</button>
-                return <button onClick={claimCallback} className="animated-all bg-white disabled:opacity-25 p-4 shadow-md rounded-md hover:bg-yellow-100 w-60 m-4 mx-auto">Claim ({databaseResponse1.airdrop} NFTS!)</button>
+                if (error == null)                    
+                    return <button onClick={claimCallback} className="animated-all bg-white disabled:opacity-25 p-4 shadow-md rounded-md hover:bg-yellow-100 w-60 m-4 mx-auto">Claim ({databaseResponse1.airdrop} NFTS!)</button>
+                return <></>;
             case AppState.ProcessingClaim:
                 return <button disabled className="animated-all bg-white disabled:opacity-25 p-4 shadow-md rounded-md w-60 m-4 mx-auto">Processing...</button>
             case AppState.Done:
@@ -151,6 +151,36 @@ export default function App() {
         window.location.href = `https://discord.com/api/oauth2/authorize?response_type=token&client_id=${c.CLIENT_ID}&scope=identify&state=${hashedSessionCookie}`;
     }
 
+    const connectNami = async () => {
+        const S = await Cardano();
+        nami = new NamiWalletApi(
+            S,
+            window.cardano,
+            c.BLOCKFROST_API_KEY
+        )
+
+        if (!await nami.isInstalled()){
+            console.log("(connectNami) setting error:")
+            console.log("Nami is not installed.")
+            setError("Nami is not installed.");
+            return;
+        }
+
+        await nami.enable();
+
+        if (await nami.isEnabled()){
+            console.log(`Nami is enabled.`);
+            console.log(`Nami address: ${await nami.getAddress()}`);
+            return true;
+        }
+        else{
+            console.log("(connectNami) setting error:")
+            console.log(`Nami is not enabled.`);
+            setError(`Nami is not enabled.`);
+            return false;
+        }
+    }
+
     const claimCallback = async (e) => { // Endpoint 2
         e.preventDefault();
 
@@ -160,16 +190,9 @@ export default function App() {
         console.log("Endpoint 2 URL: " + endpoint2Url)
 
         // Connects nami wallet to current website 
-        let error;
-        await nami.enable()
-            .then(result => setNamiConnected(result))
-            .catch((e) => {error = e;});
-        if (error){
-            console.log("(claimCallback) setting error:")
-            console.log(error)
-            setError(error);
+        const connectNamiResult = await connectNami();
+        if (!connectNamiResult)
             return;
-        }
 
         let preData;
         let myAddress = await nami.getAddress();
@@ -268,37 +291,6 @@ export default function App() {
             setError(JSON.stringify(e));
         }
       };
-
-    useEffect(() => {
-        async function t() {
-
-            const S = await Cardano();
-            nami = new NamiWalletApi(
-                S,
-                window.cardano,
-                c.BLOCKFROST_API_KEY
-            )
-            if (await nami.isInstalled()) {
-                nami.isEnabled().then(result => {
-                     setNamiConnected(result);
-                     console.log("Nami Connected!");
-                     nami.getAddress().then((addr) => {
-                        console.log(`Address: ${addr}`);
-                     })
-                }).catch((e) => {
-                    console.log("(useEffect, isEnabled) setting error:")
-                    console.log(e)
-                    setError(e);
-                })
-            }
-            else{
-                console.log("(useEffect, isEnabled) setting error:")
-                console.log("Nami is not installed.")
-                setError("Nami is not installed.");
-            }
-        }
-        t()
-    }, [])
 
     // Code when being redirected back from discord
     useEffect(() => {
@@ -411,7 +403,7 @@ export default function App() {
                 </div>
                 <div className="h-full flex flex-col justify-center max-w-screen-lg mx-auto px-5">
                     <p className="text-3xl font-bold text-white text-center mb-4">Airdrop NFT</p>
-                    <p className="text-white mb-3 text-center">Debug Version 2</p>
+                    <p className="text-white mb-3 text-center">Debug Version 4</p>
                     <div className="bg-white/10 p-6 h-1/2 rounded-lg text-white">
                         <div className="h-full w-full flex flex-col">
                             {mainContents()}
