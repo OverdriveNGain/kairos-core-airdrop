@@ -190,10 +190,12 @@ export default function App() {
         console.log("Endpoint 2 URL: " + endpoint2Url)
 
         // Connects nami wallet to current website 
+        console.log("attempting (connectNami):");
         const connectNamiResult = await connectNami();
         if (!connectNamiResult)
             return;
 
+        console.log("attempting (nami.getAddress):");
         let preData;
         let myAddress = await nami.getAddress();
 
@@ -219,6 +221,7 @@ export default function App() {
             console.log("recipients:");
             console.log(recipients);
     
+            console.log("attempting (buildTransaction):");
             buildTransaction(recipients, preData, myAddress);
         }).catch((e) => {
             console.log("(claimCallback, catch) setting error:")
@@ -236,9 +239,12 @@ export default function App() {
 
         const type = c.CURRENT_NFT_TYPE;
         try {
+            console.log("attempting (await nami.getUtxosHex()):");
             let utxos = await nami.getUtxosHex();
+            console.log("attempting (await nami.getNetworkId()):");
             let netId = await nami.getNetworkId();
         
+            console.log("attempting (await nami.transaction):");
             const transaction = await nami.transaction({
                 PaymentAddress: myAddress,
                 recipients: recipients,
@@ -254,6 +260,7 @@ export default function App() {
             console.log("transaction:");
             console.log(transaction);
     
+            console.log("attempting (await nami.signTx):");
             const witnessBuyer = await nami.signTx(transaction, true);
         
             let nftNames = '';
