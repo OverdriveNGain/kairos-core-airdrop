@@ -1,4 +1,9 @@
 const c = {
+    POLICY_ID: "9d53f82c2ee0a83bd724d90dd74109766035204b0d30a82b96c4c99e",
+    POLICY_SCRIPT: '8201818200581cd086c23b5df51f80ed86f8199897bd4f8b7e9070783d65d3a6848125',
+    API_ENDPOINT: 'https://discord.com/api/v8',
+    CLIENT_ID: '958330731543822396',
+    COOKIE_KEY: "sessionID",
     CURRENT_NFT_TYPE: 'AirdropEdition1', // For endpoint 2
     EDITIONS: ['Blue', 'Ruby', 'Gold', 'Silver', 'Bronze', 'Black', 'White'],
     AIRDROP_PROBABILITIES: {
@@ -10,7 +15,7 @@ const c = {
         BLACK:0.00,
         WHITE:0.30
     },
-    FORCE_DISCORD_ID: '784015559003078657'
+    FORCE_DISCORD_ID: ''
     // id,tag,address,stake_address,status,verify_ada,register_time,blue,ruby,gold,silver,bronze,black,white,total,airdrop,airdrop_taken
     // 476332808642625546,Draku | Wild Dawgz#0195,addr1qyrw37qt08xuuanrar6pq3qcturg2te6v0vh7x2j63hpcn52pvj0w7kdrgn67dztwf7frqkf3hv5r06h6n2c4mazvyss2303rw,stake1ux9qkf8h0tx35fa0x39hyly3stycmk2phataf4v2a73xzgg7z2cve,verified,4.875752,1648150597,0,0,0,0,0,0,2,2,0,0
     // 951290948955025469,Dev showtime#0322,addr1q8w4u8zarjqsgadhhw03f709ef8tlpqznpx06ncpzs9pgv0pvp3qyw2z2pd36665c3xw6ype5t8smyusr38msvawq04qrep9xg,stake1u8skqcsz89p9qkcadd2vgn8dzqu69ncdjwgpcnacxwhq86sdmkz6u,verified,3.723249,1648203927,0,0,0,0,0,0,0,0,0,0

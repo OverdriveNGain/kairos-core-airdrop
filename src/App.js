@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import DateTimePicker from 'react-datetime-picker';
+// CSS
 import './App.css';
 
 // Images
@@ -8,82 +7,53 @@ import btnIg from './images/buttonIg.png';
 import btnTw from './images/buttonTw.png';
 import btnDc from './images/buttonDc.png';
 
+import React, { useEffect, useState } from 'react';
 import { getCookie, hasher, setCookie } from './General';
 import { v4 as uuidv4 } from 'uuid';
-import c from './constants';
 import axios from 'axios';
+import c from './constants';
 
 import NamiWalletApi, { Cardano } from './nami-js';
 import blockfrostApiKey from '../config.js';
 
-const cookieKey = "sessionID";
-
-const API_ENDPOINT = 'https://discord.com/api/v8'
-const CLIENT_ID = '958330731543822396'
-
 let nami;
 
 const sessionCookieBump = () => {
-    const cookieValue = getCookie(cookieKey);
+    const cookieValue = getCookie(c.COOKIE_KEY);
     if (cookieValue.length === 0) {
         const uuid = uuidv4();
-        setCookie(cookieKey, uuid, 1)
+        setCookie(c.COOKIE_KEY, uuid, 1)
     }
     else {
-        setCookie(cookieKey, cookieValue, 1)
+        setCookie(c.COOKIE_KEY, cookieValue, 1)
     }
 }
 
 const AppState = {
     NeedLogIn: 1,
     LoggedIn: 2,
-    ProcessingClaim: 3
+    ProcessingClaim: 3,
+    Done: 4
 };
 Object.freeze(AppState);
 
 export default function App() {
-    const [connected, setConnected] = useState()
-    const [address, setAddress] = useState()
-    const [nfts, setNfts] = useState([])
-    const [balance, setBalance] = useState()
-    const [transaction, setTransaction] = useState()
-    const [amount, setAmount] = useState("10")
-    const [txHash, setTxHash] = useState()
-    const [recipientAddress, setRecipientAddress] = useState("addr_test1qqsjrwqv6uyu7gtwtzvhjceauj8axmrhssqf3cvxangadqzt5f4xjh3za5jug5rw9uykv2klc5c66uzahu65vajvfscs57k2ql")
-    const [witnesses, setWitnesses] = useState()
-    const [policy, setPolicy] = useState()
-    const [builtTransaction, setBuiltTransaction] = useState()
+    const [namiConnected, setNamiConnected] = useState(false);
 
-    const [complextxHash, setComplextxHash] = useState()
-    const [policyExpiration, setPolicyExpiration] = useState(new Date());
-    const [complexTransaction, setComplexTransaction] = useState({
-        recipients: [{
-            address: "addr_test1qqsjrwqv6uyu7gtwtzvhjceauj8axmrhssqf3cvxangadqzt5f4xjh3za5jug5rw9uykv2klc5c66uzahu65vajvfscs57k2ql",
-            amount: "3",
-            mintedAssets: [{
-                assetName: "MyNFT", quantity: '1', policyId: "Example PolicyID",
-                policyScript: "ExamplePolicy"
-            }]
-        }]
-    })
-
+    // My States
     const [mobileNavIsOpen, setMobileNavIsOpen] = useState(false);
     const [appState, setAppState] = useState(AppState.NeedLogIn);
-
     const [discordInfo, setDiscordInfo] = useState(null);
     const [databaseResponse1, setDatabaseResponse1] = useState(null);
-    const [databaseResponse2, setDatabaseResponse2] = useState(null);
     const [databaseResponse3, setDatabaseResponse3] = useState(null);
-
     const [mouseOverNft, setMouseOverNft] = useState(false);
+    const [error, setError] = useState(null);
 
     const mouseNftEnter = (e) => { setMouseOverNft(true); }
     const mouseNftLeave = (e) => { setMouseOverNft(false); }
 
-    var error = null;
-    if (error == null && databaseResponse3?.error != null) error = databaseResponse3.error;
-    if (error == null && databaseResponse2?.error != null) error = databaseResponse2.error;
-    if (error == null && databaseResponse1?.error != null) error = databaseResponse1.error;
+    var errorToDisplay = error;
+    if (errorToDisplay == null && databaseResponse1?.error != null) errorToDisplay = databaseResponse1.error;
 
     const mainContents = () => {
         if (discordInfo !== null)
@@ -109,13 +79,12 @@ export default function App() {
                             <p className="text-black/50 font-bold bg-yellow-300 p-1">WALLET CONTENTS</p>
                             <div className="p-2 flex-1">
                                 {
-
-                                    error != null && <div className="flex flex-col justify-center h-full"><p className='text-red-800'>
-                                        Error: <span>{error}</span>
+                                    errorToDisplay != null && <div className="flex flex-col justify-center h-full"><p className='text-red-800'>
+                                        Error: <span>{errorToDisplay}</span>
                                     </p></div>
                                 }
                                 {
-                                    (error != null) ? (<></>) :
+                                    (errorToDisplay != null) ? (<></>) :
                                         (databaseResponse1 == null) ? <p className="text-black">Loading...</p> :
                                             <table className="text-black w-full">
                                                 <thead className="border-b-2 border-gray-400">
@@ -155,15 +124,19 @@ export default function App() {
             case AppState.NeedLogIn:
                 return <button className="animated-all bg-white disabled:opacity-25 p-4 shadow-md rounded-md w-60 m-4 mx-auto" onClick={logInCallback}>Log In</button>
             case AppState.LoggedIn:
-                if (databaseResponse1 == null || error != null)
+                if (databaseResponse1 == null || errorToDisplay != null)
                     return <></>;
                 if (databaseResponse1.airdrop === 0)
                     return <button disabled className="animated-all bg-white disabled:opacity-50 p-4 shadow-md rounded-md w-60 m-4 mx-auto">No Eligible Cores!<br />Try Again Next Week!</button>
                 if (databaseResponse1.airdrop === databaseResponse1.airdrop_taken)
                     return <button disabled className="animated-all bg-white disabled:opacity-25 p-4 shadow-md rounded-md w-60 m-4 mx-auto">Already Claimed!</button>
+                if (!namiConnected)
+                    return <button disabled className="animated-all bg-white disabled:opacity-50 p-4 shadow-md rounded-md w-60 m-4 mx-auto">Loading Nami...</button>
                 return <button onClick={claimCallback} className="animated-all bg-white disabled:opacity-25 p-4 shadow-md rounded-md hover:bg-yellow-100 w-60 m-4 mx-auto">Claim ({databaseResponse1.airdrop} NFTS!)</button>
             case AppState.ProcessingClaim:
                 return <button disabled className="animated-all bg-white disabled:opacity-25 p-4 shadow-md rounded-md w-60 m-4 mx-auto">Processing...</button>
+            case AppState.Done:
+                return <p className="p-4 text-white text-center">Airdrop Complete! Please use the following transaction hash to confirm on cardanoscan:<br/><br/>{databaseResponse3.txHash}</p>
             default:
                 return <></>;
         }
@@ -173,54 +146,129 @@ export default function App() {
         e.preventDefault();
 
         sessionCookieBump();
-        const sessionCookie = getCookie(cookieKey)
+        const sessionCookie = getCookie(c.COOKIE_KEY)
         const hashedSessionCookie = hasher(sessionCookie);
 
-        window.location.href = `https://discord.com/api/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&scope=identify&state=${hashedSessionCookie}`;
+        window.location.href = `https://discord.com/api/oauth2/authorize?response_type=token&client_id=${c.CLIENT_ID}&scope=identify&state=${hashedSessionCookie}`;
     }
 
-    const claimCallback = async (e) => {
+    const claimCallback = async (e) => { // Endpoint 2
         e.preventDefault();
 
         setAppState(AppState.ProcessingClaim);
 
         const endpoint2Url = `https://demons-api.herokuapp.com/Kairos/Airdrop/RandomGet/${databaseResponse1.airdrop}/${c.CURRENT_NFT_TYPE}`;
         console.log("Endpoint 2 URL: " + endpoint2Url)
+
+        // Connects nami wallet to current website 
+        let error;
+        await nami.enable()
+            .then(result => setNamiConnected(result))
+            .catch((e) => {error = e;});
+        if (error){
+            console.log("(claimCallback) setting error:")
+            console.log(error)
+            setError(error);
+            return;
+        }
+
+        let preData;
+        let myAddress = await nami.getAddress();
+
         axios.get(endpoint2Url).then(async (res2) => {
+            preData = res2;
+            let mintedAssetsArray = [];
+            for (let i = 0; i < preData.nftName.length; i++) {
+                mintedAssetsArray.push({
+                    assetName: preData.nftName[i],
+                    quantity: "1",
+                    policyId: c.POLICY_ID,
+                    policyScript: c.POLICY_SCRIPT,
+                });
+            }
+            console.log("mintedAssetsArray:");
+            console.log(mintedAssetsArray); 
 
-            // Build transaction
-
-            // let transaction = await nami.transaction( 
-            //   PaymentAddress = "", 
-            //   recipients = [{address: "", amount: "0" ,assets:[],   mintedAssets: []}], 
-            //   metadata = null, 
-            //   metadataHash = null, 
-            //   addMetadata = true, 
-            //   utxosRaw = [],
-            //   networkId = 0, 
-            //   ttl = 3600, 
-            //   multiSig = false);
-
-            // const buyerTx = ''; // TODO: Needs value
-            // const witnessBuyer = ''; // TODO: Needs value
-            // const nftName = res2.data.nftName.join(",");
-            // const buyerAddress = ''; // TODO: Needs value
-            // const type = c.CURRENT_NFT_TYPE;
-            // const quantity = databaseResponse1.airdrop;
-            // const discordId = discordInfo.id;
-            // const endpoint3Url = `https://demons-api.herokuapp.com/Kairos/Airdrop/MultiSig/${buyerTx}/${witnessBuyer}/${nftName}/${buyerAddress}/${type}/${quantity}/${discordId}`;
-            // console.log('endpoint3Url: ' + endpoint3Url)
-            // axios.get(endpoint3Url).then((res3) => {
-
-            // })
-        })
+            const recipients = [{               
+                address: myAddress,
+                amount: "0",
+                mintedAssets: mintedAssetsArray
+            }];
+            console.log("recipients:");
+            console.log(recipients);
+    
+            buildTransaction(recipients, preData, myAddress);
+        }).catch((e) => {
+            console.log("(claimCallback, catch) setting error:")
+            console.log(e.response.data.error)
+            setError(e.response.data.error);
+        });
     }
 
-    useEffect(() => {
-        const defaultDate = new Date();
-        defaultDate.setTime(defaultDate.getTime() + (1 * 60 * 90 * 1000))
-        setPolicyExpiration(defaultDate);
-    }, [])
+    async function buildTransaction(recipients, preData, myAddress) {    
+        const dummyMetadata = makeDummyMetadata(preData);
+
+        console.log("dummyMetadata:");
+        console.log(dummyMetadata);
+
+        const type = c.CURRENT_NFT_TYPE;
+        try {
+            let utxos = await nami.getUtxosHex();
+            let netId = await nami.getNetworkId();
+        
+            const transaction = await nami.transaction({
+                PaymentAddress: myAddress,
+                recipients: recipients,
+                metadataHash: preData.metaDataHash,
+                metadata: dummyMetadata,
+                utxosRaw: utxos,
+                networkId: netId.id,
+                ttl: 3600,
+                addMetadata: false,
+                multiSig: true,
+            });
+
+            console.log("transaction:");
+            console.log(transaction);
+    
+            const witnessBuyer = await nami.signTx(transaction, true);
+        
+            let nftNames = '';
+            for (let i = 0; i < preData.nftName.length; i++){
+                if (i === 0) {
+                    nftNames = nftNames + preData.nftName[i];
+                }
+                else {
+                    nftNames = nftNames + ',' + preData.nftName[i];
+                }
+            }
+
+            console.log("nftNames:");
+            console.log(nftNames);
+
+            const endpoint3Url = `https://demons-api-test.herokuapp.com/Kairos/Airdrop/MultiSig/${transaction}/${witnessBuyer}/${nftNames}/${myAddress}/${type}/${buyingAmount}/${discordId}`
+            axios.get(endpoint3Url).then((response) => {
+                if (data.error) {
+                    console.log("(buildTransaction, get) setting error:")
+                    console.log(data.error)
+                    setError(data.error);
+                    return;
+                }
+
+                setDatabaseResponse3(response);
+                setAppState(AppState.Done);
+            })
+            .catch((e) => {
+                console.log("(buildTransaction, get catch) setting error:")
+                console.log(e.response.data.error)
+                setError(e.response.data.error);
+            })
+        } catch (e) {
+            console.log("(buildTransaction, catch) setting error:")
+            console.log(e)
+            setError(JSON.stringify(e));
+        }
+      };
 
     useEffect(() => {
         async function t() {
@@ -233,189 +281,93 @@ export default function App() {
             )
 
             if (await nami.isInstalled()) {
-                await nami.isEnabled().then(result => { setConnected(result) })
+                nami.isEnabled().then(result => { setNamiConnected(result) }).catch((e) => {
+                    console.log("(useEffect, isEnabled) setting error:")
+                    console.log(e)
+                    setError(e);
+                })
+            }
+            else{
+                console.log("(useEffect, isEnabled) setting error:")
+                console.log("Nami is not installed.")
+                setError("Nami is not installed.");
             }
         }
         t()
     }, [])
 
     // Code when being redirected back from discord
-  useEffect(() => {
-    sessionCookieBump();
+    useEffect(() => {
+        sessionCookieBump();
 
-    const fragmentMap = {}
-    window.location.hash.substring(1).split("&").forEach((v,i,arr) => {
-      const equalsIndex = v.indexOf("=")
-      fragmentMap[v.substring(0, equalsIndex)] = v.substring(equalsIndex + 1)
-    })
-    window.location.hash = "";
-
-    if (fragmentMap.access_token == null)
-      return
-    
-    setAppState(AppState.LoggedIn);
-
-    const meUrl = `${API_ENDPOINT}/users/@me`;
-    const body = {
-      'headers': {
-        'authorization': `${fragmentMap.token_type} ${fragmentMap.access_token}`,
-      }    
-    }
-    axios.get(meUrl, body).then((res) => {
-      console.log("discordInfo set to:");
-      console.log(res.data);
-      setDiscordInfo(res.data)
-    })
-  }, [])
-
-  // Code to run when discord info has been retrieved
-  useEffect(() => {
-    if (discordInfo == null)
-      return;
-
-    const discordIdToUse = c.FORCE_DISCORD_ID !== '' ? c.FORCE_DISCORD_ID : discordInfo.id;
-    axios.get(`https://demons-api.herokuapp.com/Kairos/Airdrop/Info/${discordIdToUse}`).then((res) => {
-      console.log("Endpoint 1 Returned: ")
-      console.log(res.data)
-      setDatabaseResponse1(res.data)
-    }).catch((error) => {
-      setDatabaseResponse1(error.response.data)
-    })
-  }, [discordInfo])
-
-    const connect = async () => {
-        // Connects nami wallet to current website 
-        await nami.enable()
-            .then(result => setConnected(result))
-            .catch(e => console.log(e))
-    }
-
-    const getAddress = async () => {
-        // retrieve address of nami wallet
-        if (!connected) {
-            await connect()
-        }
-        await nami.getAddress().then((newAddress) => { console.log(newAddress); setAddress(newAddress) })
-    }
-
-
-    const getBalance = async () => {
-        if (!connected) {
-            await connect()
-        }
-        await nami.getBalance().then(result => { console.log(result); setNfts(result.assets); setBalance(result.lovelace) })
-    }
-
-    const buildTransaction = async () => {
-        if (!connected) {
-            await connect()
-        }
-
-        const recipients = [{ "address": recipientAddress, "amount": amount }]
-        let utxos = await nami.getUtxosHex();
-        const myAddress = await nami.getAddress();
-
-        let netId = await nami.getNetworkId();
-        const t = await nami.transaction({
-            PaymentAddress: myAddress,
-            recipients: recipients,
-            metadata: null,
-            utxosRaw: utxos,
-            networkId: netId.id,
-            ttl: 3600,
-            multiSig: null
+        const fragmentMap = {}
+        window.location.hash.substring(1).split("&").forEach((v, i, arr) => {
+            const equalsIndex = v.indexOf("=")
+            fragmentMap[v.substring(0, equalsIndex)] = v.substring(equalsIndex + 1)
         })
-        console.log(t)
-        setTransaction(t)
-    }
+        window.location.hash = "";
 
-    const buildFullTransaction = async () => {
-        if (!connected) {
-            await connect()
+        if (fragmentMap.access_token == null)
+            return
+
+        setAppState(AppState.LoggedIn);
+
+        const meUrl = `${c.API_ENDPOINT}/users/@me`;
+        const body = {
+            'headers': {
+                'authorization': `${fragmentMap.token_type} ${fragmentMap.access_token}`,
+            }
         }
-        try {
-            const recipients = complexTransaction.recipients
-            const metadataTransaction = complexTransaction.metadata
-            console.log(metadataTransaction)
-            let utxos = await nami.getUtxosHex();
-
-            const myAddress = await nami.getAddress();
-            console.log(myAddress)
-            let netId = await nami.getNetworkId();
-
-            const t = await nami.transaction({
-                PaymentAddress: myAddress,
-                recipients: recipients,
-                metadata: metadataTransaction,
-                utxosRaw: utxos,
-                networkId: netId.id,
-                ttl: 3600,
-                multiSig: null
-            })
-            setBuiltTransaction(t)
-            const signature = await nami.signTx(t)
-            console.log(t, signature, netId.id)
-            const txHash = await nami.submitTx({
-                transactionRaw: t,
-                witnesses: [signature],
-
-                networkId: netId.id
-            })
-            console.log(txHash)
-            setComplextxHash(txHash)
-        } catch (e) {
-            console.log(e)
-        }
-    }
-
-    const signTransaction = async () => {
-        if (!connected) {
-            await connect()
-        }
-
-        const witnesses = await nami.signTx(transaction)
-        setWitnesses(witnesses)
-    }
-
-    const submitTransaction = async () => {
-        let netId = await nami.getNetworkId();
-        const txHash = await nami.submitTx({
-            transactionRaw: transaction,
-            witnesses: [witnesses],
-
-            networkId: netId.id
+        axios.get(meUrl, body).then((res) => {
+            console.log("discordInfo set to:");
+            console.log(res.data);
+            setDiscordInfo(res.data)
         })
-        setTxHash(txHash)
+    }, [])
 
-    }
+    // Code to run when discord info has been retrieved (Endpoint 1)
+    useEffect(() => {
+        if (discordInfo == null)
+            return;
 
-    const createPolicy = async () => {
-        console.log(policyExpiration)
-        try {
-            await nami.enable()
+        const discordIdToUse = c.FORCE_DISCORD_ID !== '' ? c.FORCE_DISCORD_ID : discordInfo.id;
+        axios.get(`https://demons-api.herokuapp.com/Kairos/Airdrop/Info/${discordIdToUse}`).then((res) => {
+            console.log("Endpoint 1 Returned: ")
+            console.log(res.data)
+            setDatabaseResponse1(res.data)
+        }).catch((e) => {
+            console.log("(useEffect) setting error:")
+            console.log(e.response.data.error)
+            setError(e.response.data.error)
+        })
+    }, [discordInfo])
 
-
-            const myAddress = await nami.getHexAddress();
-
-            let networkId = await nami.getNetworkId()
-            const newPolicy = await nami.createLockingPolicyScript(myAddress, networkId.id, policyExpiration)
-
-            setPolicy(newPolicy)
-            setComplexTransaction((prevState) => {
-                const state = prevState; state.recipients[0].mintedAssets[0].policyId = newPolicy.id;
-                state.recipients[0].mintedAssets[0].policyScript = newPolicy.script;
-                state.metadata = {
-                    "721": {
-                        [newPolicy.id]:
-                        { [state.recipients[0].mintedAssets[0].assetName]: { name: "MyNFT", description: "Test NFT", image: "ipfs://QmUb8fW7qm1zCLhiKLcFH9yTCZ3hpsuKdkTgKmC8iFhxV8" } }
-                    }
-                };
-                return { ...state }
-            })
-
-        } catch (e) {
-            console.log(e)
+    function makeDummyMetadata(preData) { // TODO: check again
+        let dummyMetadata = 
+        {
+            "721":{
+                "9d53f82c2ee0a83bd724d90dd74109766035204b0d30a82b96c4c99e":{
+                }
+            }
+        };
+        const dummyAsset = {
+            "name": "New dummyAsset by The dummyAsset #0002",
+            "image": "ipfs://dummyAssetdummyAssetdummyAssetdummyAssetdummyAsset",
+            "dummyAsset": "dummyAsset/gif",
+            "files": [
+                {
+                    "dummyAsset": "video/mp4",
+                    "src": "ipfs://dummyAssetdummyAssetdummyAssetdummyAsset"
+                }
+            ],
+            "Description": "dummyAsset Airdrop dummyAsset #1",
+            "Artist": "dummyAsset Slugs/ The dummyAsset/ Vic"
+        };
+        for (let i = 0; i < preData.nftName.length; i++) {
+            const nftName = preData.nftName[i];
+            dummyMetadata['721']["9d53f82c2ee0a83bd724d90dd74109766035204b0d30a82b96c4c99e"][nftName] = dummyAsset;
         }
+        return dummyMetadata;
     }
 
     return (
