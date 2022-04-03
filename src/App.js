@@ -63,7 +63,7 @@ export default function App() {
                             <img src="https://gw3.easy-ipfs.com/ipfs/Qmc8HUhSEYegtQP5GCCjJmPA793ML5E7b2uTDtC74hxu3E" alt="Airdrop for the week"></img>
                             <p className={`text-white/20 transition-all ${mouseOverNft ? "opacity-0" : ""}`}>Hover for Description</p>
                             <div className={`transition-all absolute bottom-0 top-0 left-0 right-0 bg-black/50 p-3 flex flex-col justify-center ${mouseOverNft ? "" : "opacity-0"}`}>
-                                <p className="">The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. </p>
+                                <p className="">{c.NFT_TITLE}<br/><br/>{c.NFT_DESCRIPTION}</p>
                             </div>
                         </div>
                         <p className="text-center p-2 tracking-widest">Artist: <a className="text-yellow-300 font-bold underline" href="https://twitter.com/SSlugs74">The Voyager</a></p>
@@ -222,8 +222,9 @@ export default function App() {
             buildTransaction(recipients, preData, myAddress);
         }).catch((e) => {
             console.log("(claimCallback, catch) setting error:")
-            console.log(e.response.data.error)
-            setError(e.response.data.error);
+            console.log(e);
+            console.log(JSON.stringify(e));
+            setError(JSON.stringify(e));
         });
     }
 
@@ -272,6 +273,7 @@ export default function App() {
             axios.get(endpoint3Url).then((response) => {
                 if (data.error) {
                     console.log("(buildTransaction, get) setting error:")
+                    console.log(data);
                     console.log(data.error)
                     setError(data.error);
                     return;
@@ -282,15 +284,19 @@ export default function App() {
             })
             .catch((e) => {
                 console.log("(buildTransaction, get catch) setting error:")
-                console.log(e.response.data.error)
-                setError(e.response.data.error);
+                console.log(e)
+                console.log(JSON.stringify(e))
+                setError(JSON.stringify(e));
             })
         } catch (e) {
             console.log("(buildTransaction, catch) setting error:")
             console.log(e)
+            console.log(JSON.stringify(e))
             setError(JSON.stringify(e));
         }
       };
+
+
 
     // Code when being redirected back from discord
     useEffect(() => {
@@ -303,8 +309,10 @@ export default function App() {
         })
         window.location.hash = "";
 
-        if (fragmentMap.access_token == null)
-            return
+        if (fragmentMap.access_token == null){
+            connectNami(); // Debug connect
+            return;
+        }
 
         setAppState(AppState.LoggedIn);
 
@@ -333,8 +341,9 @@ export default function App() {
             setDatabaseResponse1(res.data)
         }).catch((e) => {
             console.log("(useEffect) setting error:")
-            console.log(e.response.data.error)
-            setError(e.response.data.error)
+            console.log(JSON.stringify(e))
+            console.log(JSON.stringify(e.response.data.error))
+            setError(JSON.stringify(e.response.data.error))
         })
     }, [discordInfo])
 
@@ -403,7 +412,7 @@ export default function App() {
                 </div>
                 <div className="h-full flex flex-col justify-center max-w-screen-lg mx-auto px-5">
                     <p className="text-3xl font-bold text-white text-center mb-4">Airdrop NFT</p>
-                    <p className="text-white mb-3 text-center">Debug Version 4</p>
+                    <p className="text-white mb-3 text-center">{c.VERSION}</p>
                     <div className="bg-white/10 p-6 h-1/2 rounded-lg text-white">
                         <div className="h-full w-full flex flex-col">
                             {mainContents()}

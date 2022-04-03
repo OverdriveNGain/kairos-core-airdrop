@@ -2,6 +2,9 @@ const c = {
     // REDIRECT_URI: "https%3A%2F%2Fkairos-core-airdrop.web.app%2F", // https://kairos-core-airdrop.web.app/
     // REDIRECT_URI: "http%3A%2F%2F192.168.1.101%3A8080%2F", // http://192.168.1.101:8080/
 
+    VERSION: "Debug Version 7",
+    NFT_TITLE: "New Beach",
+    NFT_DESCRIPTION: 'The Voyager also known as Silver Slugs or Vic is an artist that specializes in futuristic art works. Most of his works are animated 3D models revolving around the astronaut and cyberpunk theme but he also does 2D and GAN art.',
     POLICY_ID: "9d53f82c2ee0a83bd724d90dd74109766035204b0d30a82b96c4c99e",
     POLICY_SCRIPT: '8201818200581cd086c23b5df51f80ed86f8199897bd4f8b7e9070783d65d3a6848125',
     API_ENDPOINT: 'https://discord.com/api/v8',
