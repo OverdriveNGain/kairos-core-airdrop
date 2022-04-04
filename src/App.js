@@ -200,11 +200,14 @@ export default function App() {
         let myAddress = await nami.getAddress();
 
         axios.get(endpoint2Url).then(async (res2) => {
+            console.log("endpoint2 reponse:");
+            console.log(res2);
+
             preData = res2;
             let mintedAssetsArray = [];
-            for (let i = 0; i < preData.nftName.length; i++) {
+            for (let i = 0; i < preData.data.nftName.length; i++) {
                 mintedAssetsArray.push({
-                    assetName: preData.nftName[i],
+                    assetName: preData.data.nftName[i],
                     quantity: "1",
                     policyId: c.POLICY_ID,
                     policyScript: c.POLICY_SCRIPT,
@@ -222,7 +225,7 @@ export default function App() {
             console.log(recipients);
     
             console.log("attempting (buildTransaction):");
-            buildTransaction(recipients, preData, myAddress);
+            buildTransaction(recipients, preData.data, myAddress);
         }).catch((e) => {
             console.log("(claimCallback, catch) setting error:")
             console.log(e);
@@ -273,9 +276,11 @@ export default function App() {
                 }
             }
 
-            console.log("nftNames:");
             console.log(nftNames);
 
+            console.log("")
+
+            console.log("attempting endpoint 3 get:");
             const endpoint3Url = `https://demons-api-test.herokuapp.com/Kairos/Airdrop/MultiSig/${transaction}/${witnessBuyer}/${nftNames}/${myAddress}/${type}/${buyingAmount}/${discordId}`
             axios.get(endpoint3Url).then((response) => {
                 if (data.error) {
