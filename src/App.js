@@ -244,9 +244,10 @@ export default function App() {
         try {
             console.log("attempting (await nami.getUtxosHex()):");
             let utxos = await nami.getUtxosHex();
+            console.log("utxos:" + utxos);
             console.log("attempting (await nami.getNetworkId()):");
             let netId = await nami.getNetworkId();
-        
+            console.log("nedId:" + netId);
             console.log("attempting (await nami.transaction):");
             const transaction = await nami.transaction({
                 PaymentAddress: myAddress,
@@ -277,8 +278,6 @@ export default function App() {
             }
 
             console.log(nftNames);
-
-            console.log("")
 
             console.log("attempting endpoint 3 get:");
             const endpoint3Url = `https://demons-api-test.herokuapp.com/Kairos/Airdrop/MultiSig/${transaction}/${witnessBuyer}/${nftNames}/${myAddress}/${type}/${buyingAmount}/${discordId}`
