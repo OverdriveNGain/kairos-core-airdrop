@@ -133,7 +133,9 @@ export default function App() {
                     return <button onClick={claimCallback} className="animated-all bg-white disabled:opacity-25 p-4 shadow-md rounded-md hover:bg-yellow-100 w-60 m-4 mx-auto">Claim ({databaseResponse1.airdrop} NFTS!)</button>
                 return <></>;
             case AppState.ProcessingClaim:
-                return <button disabled className="animated-all bg-white disabled:opacity-25 p-4 shadow-md rounded-md w-60 m-4 mx-auto">Processing...</button>
+                if (error == null)
+                    return <button disabled className="animated-all bg-white disabled:opacity-25 p-4 shadow-md rounded-md w-60 m-4 mx-auto">Processing...</button>
+                return <></>;
             case AppState.Done:
                 return <p className="p-4 text-white text-center">Airdrop Complete! Please use the following transaction hash to confirm on cardanoscan:<br/><br/>{databaseResponse3.txHash}</p>
             default:
@@ -225,7 +227,7 @@ export default function App() {
             console.log(recipients);
     
             console.log("attempting (buildTransaction):");
-            buildTransaction(recipients, preData.data, myAddress);
+            buildTransaction(recipients, preData.data, myAddress, databaseResponse1.airdrop);
         }).catch((e) => {
             console.log("(claimCallback, catch) setting error:")
             console.log(e);
@@ -234,7 +236,7 @@ export default function App() {
         });
     }
 
-    async function buildTransaction(recipients, preData, myAddress) {    
+    async function buildTransaction(recipients, preData, myAddress, buyingAmount) {    
         const dummyMetadata = makeDummyMetadata(preData);
 
         console.log("dummyMetadata:");
@@ -280,7 +282,7 @@ export default function App() {
             console.log(nftNames);
 
             console.log("attempting endpoint 3 get:");
-            const endpoint3Url = `https://demons-api-test.herokuapp.com/Kairos/Airdrop/MultiSig/${transaction}/${witnessBuyer}/${nftNames}/${myAddress}/${type}/${buyingAmount}/${discordId}`
+            const endpoint3Url = `https://demons-api-test.herokuapp.com/Kairos/Airdrop/MultiSig/${transaction}/${witnessBuyer}/${nftNames}/${myAddress}/${type}/${buyingAmount}/${discordInfo.id}`
             axios.get(endpoint3Url).then((response) => {
                 if (data.error) {
                     console.log("(buildTransaction, get) setting error:")

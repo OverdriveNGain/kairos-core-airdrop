@@ -2,7 +2,7 @@ const c = {
     // REDIRECT_URI: "https%3A%2F%2Fkairos-core-airdrop.web.app%2F", // https://kairos-core-airdrop.web.app/
     // REDIRECT_URI: "http%3A%2F%2F192.168.1.101%3A8080%2F", // http://192.168.1.101:8080/
 
-    VERSION: "Debug Version 12",
+    VERSION: "Debug Version 13",
     NFT_TITLE: "New Beach",
     NFT_DESCRIPTION: 'The Voyager also known as Silver Slugs or Vic is an artist that specializes in futuristic art works. Most of his works are animated 3D models revolving around the astronaut and cyberpunk theme but he also does 2D and GAN art.',
     POLICY_ID: "9d53f82c2ee0a83bd724d90dd74109766035204b0d30a82b96c4c99e",
@@ -25,7 +25,7 @@ const c = {
         0: "testnetbKvUfObsMyfxVhcPUvyOT2E60VKErCDs", // (jeremyamon@gmail.com)
         1: "mainnetywgBm2bioxel7dRVtJcq9ofkNjMibtop" // (jdamon@up.edu.ph)
     },
-    FORCE_DISCORD_ID: ''
+    FORCE_DISCORD_ID: '' // Force to use this discord ID
     // id,tag,address,stake_address,status,verify_ada,register_time,blue,ruby,gold,silver,bronze,black,white,total,airdrop,airdrop_taken
     // 476332808642625546,Draku | Wild Dawgz#0195,addr1qyrw37qt08xuuanrar6pq3qcturg2te6v0vh7x2j63hpcn52pvj0w7kdrgn67dztwf7frqkf3hv5r06h6n2c4mazvyss2303rw,stake1ux9qkf8h0tx35fa0x39hyly3stycmk2phataf4v2a73xzgg7z2cve,verified,4.875752,1648150597,0,0,0,0,0,0,2,2,0,0
     // 951290948955025469,Dev showtime#0322,addr1q8w4u8zarjqsgadhhw03f709ef8tlpqznpx06ncpzs9pgv0pvp3qyw2z2pd36665c3xw6ype5t8smyusr38msvawq04qrep9xg,stake1u8skqcsz89p9qkcadd2vgn8dzqu69ncdjwgpcnacxwhq86sdmkz6u,verified,3.723249,1648203927,0,0,0,0,0,0,0,0,0,0
